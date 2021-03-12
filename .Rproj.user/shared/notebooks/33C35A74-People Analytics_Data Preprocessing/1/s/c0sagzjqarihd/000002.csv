@@ -1,0 +1,7 @@
+"0","ggplot(chisq_score, aes(x = ChiSquare_Score, y = reorder(Feature, ChiSquare_Score),"
+"0","                        fill = reorder(Feature, desc(ChiSquare_Score)))) +"
+"0","  geom_col() +"
+"0","  ggtitle(""ChiSquare score rank"") +"
+"0","  xlab(""ChiSquare score"") +"
+"0","  ylab(""Features"") +"
+"0","  theme(legend.position = ""none"")"

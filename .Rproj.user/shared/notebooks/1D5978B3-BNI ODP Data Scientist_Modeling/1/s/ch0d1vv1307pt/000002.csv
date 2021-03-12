@@ -1,0 +1,7 @@
+"0","```r
+set.seed(123)
+split <- initial_split(train, prop = 7/10, strata = TARGET)
+
+train_train <- analysis(split)
+train_valid <- assessment(split)
+```"

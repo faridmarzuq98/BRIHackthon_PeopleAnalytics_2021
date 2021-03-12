@@ -1,0 +1,2 @@
+"0","saveRDS(cbind(X_train_fin, y_train_outremoved), ""train_fin.rds"")"
+"0","saveRDS(test_fin, ""test_fin.rds"")"

@@ -1,0 +1,9 @@
+"0","set.seed(123)"
+"0","train_train_rsmp <- recipe(y_train_outremoved ~ ., data = train_train) %>%"
+"0","    step_tomek(y_train_outremoved, seed = 123) %>%"
+"0","    step_smote(y_train_outremoved, seed = 123) %>%"
+"0","    prep() %>%"
+"0","    juice()"
+"2","Error: All columns selected for the step should be numeric
+[90mRun `rlang::last_error()` to see where the error occurred.[39m
+"

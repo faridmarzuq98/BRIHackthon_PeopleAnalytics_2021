@@ -1,0 +1,4 @@
+"0","for(i in seq_along(num_features)){"
+"0","  feature <- num_features[i]"
+"0","  boxplot(train_fillna[, feature], xlab = feature, horizontal = TRUE)"
+"0","}"

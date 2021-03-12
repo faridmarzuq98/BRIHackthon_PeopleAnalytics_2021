@@ -1,0 +1,62 @@
+"0","```r
+library(themis)
+```"
+"1","Loading required package: recipes
+Loading required package: dplyr
+
+Attaching package: ã¤¼ã¸±dplyrã¤¼ã¸²
+
+The following objects are masked from ã¤¼ã¸±package:statsã¤¼ã¸²:
+
+    filter, lag
+
+The following objects are masked from ã¤¼ã¸±package:baseã¤¼ã¸²:
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: ã¤¼ã¸±recipesã¤¼ã¸²
+
+The following object is masked from ã¤¼ã¸±package:statsã¤¼ã¸²:
+
+    step
+
+Registered S3 method overwritten by 'data.table':
+  method           from
+  print.data.table     
+Registered S3 methods overwritten by 'themis':
+  method                  from   
+  bake.step_downsample    recipes
+  bake.step_upsample      recipes
+  prep.step_downsample    recipes
+  prep.step_upsample      recipes
+  tidy.step_downsample    recipes
+  tidy.step_upsample      recipes
+  tunable.step_downsample recipes
+  tunable.step_upsample   recipes
+
+Attaching package: ã¤¼ã¸±themisã¤¼ã¸²
+
+The following objects are masked from ã¤¼ã¸±package:recipesã¤¼ã¸²:
+
+    step_downsample, step_upsample
+"
+"0","```r
+library(tidymodels)
+```"
+"1","[37m-- [1mAttaching packages[22m ------------------------------------------------ tidymodels 0.1.2 --[39m
+[37m[32mv[37m [34mbroom    [37m 0.7.2     [32mv[37m [34mrsample  [37m 0.0.8
+[32mv[37m [34mdials    [37m 0.0.9     [32mv[37m [34mtibble   [37m 3.0.4
+[32mv[37m [34mggplot2  [37m 3.3.2     [32mv[37m [34mtidyr    [37m 1.1.2
+[32mv[37m [34minfer    [37m 0.5.3     [32mv[37m [34mtune     [37m 0.1.2
+[32mv[37m [34mmodeldata[37m 0.1.0     [32mv[37m [34mworkflows[37m 0.2.1
+[32mv[37m [34mparsnip  [37m 0.1.4     [32mv[37m [34myardstick[37m 0.0.7
+[32mv[37m [34mpurrr    [37m 0.3.4     [39m
+[37m-- [1mConflicts[22m --------------------------------------------------- tidymodels_conflicts() --
+[31mx[37m [34mpurrr[37m::[32mdiscard()[37m          masks [34mscales[37m::discard()
+[31mx[37m [34mdplyr[37m::[32mfilter()[37m           masks [34mstats[37m::filter()
+[31mx[37m [34mdplyr[37m::[32mlag()[37m              masks [34mstats[37m::lag()
+[31mx[37m [34mrecipes[37m::[32mstep()[37m           masks [34mstats[37m::step()
+[31mx[37m [34mthemis[37m::[32mstep_downsample()[37m masks [34mrecipes[37m::step_downsample()
+[31mx[37m [34mthemis[37m::[32mstep_upsample()[37m   masks [34mrecipes[37m::step_upsample()[39m
+"

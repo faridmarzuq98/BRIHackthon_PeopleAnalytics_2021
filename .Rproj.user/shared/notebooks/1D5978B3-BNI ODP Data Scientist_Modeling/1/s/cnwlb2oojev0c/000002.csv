@@ -1,0 +1,4 @@
+"0","```r
+predicted <- predict(model_fit, new_data = val)
+predicted_proba <- predict(model_fit, new_data = val, type = \"prob\")
+```"

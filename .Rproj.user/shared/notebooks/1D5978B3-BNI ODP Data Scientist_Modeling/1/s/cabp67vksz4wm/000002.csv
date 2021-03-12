@@ -1,0 +1,33 @@
+"0","```r
+model_spec <- decision_tree(
+    tree_depth = tune(),
+    min_n = tune()
+  ) %>%
+  set_engine(
+    \"rpart\",
+    minbucket = tune()
+  ) %>%
+  set_mode(\"classification\")
+
+set.seed(123)
+param_grid <- expand_grid(
+    tree_depth = c(5, 10, 15),
+    min_n = c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+    minbucket = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+  ) %>%
+  slice_sample(n = 10)
+
+wf <- workflow() %>%
+  add_formula(TARGET ~ .) %>%
+  add_model(model_spec)
+
+doParallel::registerDoParallel()
+
+set.seed(123)
+result <- tune_grid(
+  wf,
+  resamples = tune_folds,
+  grid = param_grid,
+  metrics = metric_set(roc_auc)
+)
+```"

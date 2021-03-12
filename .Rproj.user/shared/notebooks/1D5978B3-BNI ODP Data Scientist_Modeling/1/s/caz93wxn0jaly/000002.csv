@@ -1,0 +1,8 @@
+"0","```r
+set.seed(123)
+tuned <- wflow %>%
+  tune_bayes(
+    resamples = folds,
+    param_info = xgboost_params
+  )
+```"

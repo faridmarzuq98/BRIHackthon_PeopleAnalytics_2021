@@ -1,0 +1,161 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Import library
+```{r}
+library(themis)
+library(tidymodels)
+```
+
+# Import data
+```{r}
+train <- readRDS("train_fin.rds") %>%
+  mutate(TARGET = as.factor(TARGET))
+test <- readRDS("test_fin.rds")
+```
+
+# Function
+
+# Modeling
+The modeling stage is consists of following:
+
+1. Hyperparameter tuning
+
+2. Check model stability
+
+## Hyperparameter tuning
+### Split data to 70:30
+```{r}
+set.seed(123)
+split <- initial_split(train, prop = 7/10, strata = TARGET)
+
+train_train <- analysis(split)
+train_valid <- assessment(split)
+```
+
+### Resampling data
+```{r}
+set.seed(123)
+train_train_rsmp <- recipe(TARGET ~ ., data = train_train) %>%
+    step_tomek(TARGET, seed = 123) %>%
+    step_smote(TARGET, seed = 123) %>%
+    prep() %>%
+    juice()
+```
+
+### Tuning
+```{r}
+tune_folds <- vfold_cv(train_train_rsmp, v = 10)
+```
+
+```{r}
+tictoc::tic()
+
+model_spec <- decision_tree(
+    tree_depth = tune(),
+    min_n = tune()
+  ) %>%
+  set_engine(
+    "rpart",
+    minbucket = tune()
+  ) %>%
+  set_mode("classification")
+
+set.seed(123)
+param_grid <- expand_grid(
+    tree_depth = c(5, 10, 15),
+    min_n = c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+    minbucket = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+  ) %>%
+  slice_sample(n = 10)
+
+wf <- workflow() %>%
+  add_formula(TARGET ~ .) %>%
+  add_model(model_spec)
+
+doParallel::registerDoParallel()
+
+set.seed(123)
+result <- tune_grid(
+  wf,
+  resamples = tune_folds,
+  grid = param_grid,
+  metrics = metric_set(roc_auc)
+)
+
+tictoc::toc()
+
+collect_metrics(result)
+```
+
+```{r}
+final_wf <- wf %>%
+  finalize_workflow(select_best(result))
+
+final_wf
+```
+
+### Test on valid data
+```{r}
+lf <- last_fit(final_wf, split = split)
+```
+
+```{r}
+prediction <- bind_cols(
+  truth = train_valid$TARGET,
+  predict(lf$.workflow[[1]], train_valid, type = "prob")
+)
+
+roc_auc(prediction, truth = truth, .pred_1)
+```
+
+
+```{r}
+set.seed(123)
+folds <- vfold_cv(train, v = 10, strata = TARGET)
+
+for(idx in seq_along(1:10)){
+  train_fold <- analysis(folds$splits[[idx]])
+  valid_fold <- assessment(folds$splits[[idx]])
+  
+  # Resampling
+  train_fold_rsmp <- recipe(TARGET ~ ., data = train_fold) %>%
+    step_tomek(TARGET, seed = 123) %>%
+    step_smote(TARGET, seed = 123) %>%
+    prep() %>%
+    juice()
+  
+  inner_folds <- vfold_cv(train_fold_rsmp, v = 10, strata = TARGET)
+  print(idx)
+}
+```
+
+
+
+
+```{r}
+predicted <- predict(model_fit, new_data = val)
+predicted_proba <- predict(model_fit, new_data = val, type = "prob")
+```
+
+```{r}
+res <- val %>%
+  bind_cols(predicted, predicted_proba)
+
+res %>% conf_mat(TARGET, .pred_class)
+res %>% accuracy(TARGET, .pred_class)
+res %>% roc_auc(TARGET, .pred_1)
+```
+
+
+```{r}
+set.seed(123)
+tuned <- wflow %>%
+  tune_bayes(
+    resamples = folds,
+    param_info = xgboost_params
+  )
+```
+

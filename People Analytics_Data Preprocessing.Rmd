@@ -1,0 +1,212 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Import library
+```{r}
+library(skimr)
+library(ramify)
+library(tidymodels)
+```
+
+# Import data
+## Train
+```{r}
+train <- read.csv("people_analytics/train.csv")
+skim(train)
+head(train, 5)
+```
+
+```{r}
+train$gender <- as.character(train$gender)
+```
+
+
+```{r}
+features <- train %>% select(-Best.Performance) %>% colnames()
+cat_features <- train %>% select_if(is.character) %>% colnames()
+num_features <- setdiff(features, cat_features)
+```
+
+## Test
+```{r}
+test <- read.csv("people_analytics/test.csv")
+skim(test)
+head(test, 5)
+```
+
+```{r}
+test$gender <- as.character(test$gender)
+```
+
+
+# Feature selection
+In this stage, the features selection is carried out so the data used is not too wide. Another features selection will be done depends on respective algorithms that will be used later.
+
+## Handling missing value
+Before doing features selection, I handled the missing value as prequisite on the next algorithm that will be used.
+```{r}
+for(i in seq_along(num_features)){
+  feature <- num_features[i]
+  miss_count <- sum(is.na(train[feature]))
+  miss_percentage <- (miss_count / nrow(train)) * 100
+  print(sprintf("%s: %f, %f%%", feature, miss_count, miss_percentage))
+}
+```
+We will replace the missing value by using its median.
+
+```{r}
+train_fillna <- train
+
+for(i in seq_along(num_features)){
+  feature <- num_features[i]
+  median <- median(train_fillna[, feature], na.rm = TRUE)
+  train_fillna[, feature] <- replace(train_fillna[, feature],
+                                     is.na(train_fillna[, feature]), median)
+}
+```
+
+```{r}
+for(i in seq_along(num_features)){
+  feature <- num_features[i]
+  miss_count <- sum(is.na(train_fillna[feature]))
+  miss_percentage <- (miss_count / nrow(train_fillna)) * 100
+  print(sprintf("%s: %f, %f%%", feature, miss_count, miss_percentage))
+}
+```
+
+## Outlier removal
+```{r}
+for(i in seq_along(num_features)){
+  feature <- num_features[i]
+  boxplot(train_fillna[, feature], xlab = feature, horizontal = TRUE)
+}
+```
+We could use simple boxplot to remove the outliers. Usually, a datum considered as normal if it lies between the lower inner fence (Q1 - 1.5 IQR) and upper inner fence (Q3 + 1.5 IQR). But because there is too many outliers, we will just remove the data outside lower outer fence (Q1 - 3 IQR) and upper outer fence (Q3 + 1.5 IQR) and set the data between inner and outer fence to inner fence
+
+```{r}
+train_outremoved <- train_fillna
+
+for(i in seq_along(c(1, 2, 3, 4))){
+  feature <- num_features[i]
+  Q1 <- quantile(train_outremoved[, feature], 0.25)
+  Q3 <- quantile(train_outremoved[, feature], 0.75)
+  IQR <- Q3 - Q1
+  
+  low_in <- Q1 - (1.5 * IQR) 
+  low_out <- Q1 - (3 * IQR)
+  up_in <- Q3 + (1.5 * IQR)
+  up_out <- Q3 + (3 * IQR)
+  
+  train_outremoved <- train_outremoved[train_outremoved[, feature] < up_out,]
+  train_outremoved <- train_outremoved[train_outremoved[, feature] > low_out,]
+    
+  train_outremoved[, feature] <- clip(train_outremoved[, feature],
+                                      .min = low_in, .max = up_in)
+}
+```
+
+```{r}
+summary(train_outremoved)
+```
+
+## ChiSquare
+```{r}
+X_train_outremoved <- train_outremoved[, features]
+y_train_outremoved <- train_outremoved$Best.Performance
+```
+
+```{r}
+chisq_score <- NULL
+
+for(i in seq_along(features)){
+  feature <- features[i]
+  chisq <- tidy(chisq.test(X_train_outremoved[feature], y_train_outremoved))
+  chisq_statistic <- chisq$statistic
+  chisq_pvalue <- chisq$p.value
+  chisq_score <- rbind(chisq_score, c(feature, chisq_statistic, chisq_pvalue))
+}
+
+chisq_score <- as.data.frame(chisq_score) %>%
+  rename(Feature = V1, ChiSquare_Score = `X-squared`, P_Value = V3) %>%
+  mutate_at(vars(ChiSquare_Score, P_Value), as.numeric) %>%
+  arrange(desc(ChiSquare_Score))
+```
+
+```{r}
+ggplot(chisq_score, aes(x = ChiSquare_Score, y = reorder(Feature, ChiSquare_Score),
+                        fill = reorder(Feature, desc(ChiSquare_Score)))) +
+  geom_col() +
+  ggtitle("ChiSquare score rank") +
+  xlab("ChiSquare score") +
+  ylab("Features") +
+  theme(legend.position = "none")
+```
+
+## Correlation
+```{r}
+correlation <- as.data.frame(cor(X_train_outremoved[num_features], use = "complete.obs")) %>%
+  rownames_to_column(var = "col1") %>%
+  pivot_longer(-col1, "col2")
+```
+
+```{r, fig.width=11, fig.height=7}
+ggplot(correlation, aes(x = col1, y = col2, fill = value, label = signif(value, 2))) +
+  geom_tile() +
+  geom_text(size = 4) +
+  scale_fill_gradient2(mid = "#FBFEF9", low = "#0C6291", high = "#A63446",
+                       limits = c(-1, 1)) +
+  xlim(num_features) +
+  ylim(rev(num_features)) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 10),
+    axis.text.y = element_text(size = 10),
+    legend.title = element_blank()
+  )
+```
+
+Highly correlated features (> 0.7):
+
+* job_duration_in_current_job_level - job_duration_in_current_person_level
+* age - year_graduated
+* job_duration_from_training - branch_rotation
+* Last_achievement_. - Achievement_above_100._during3quartal
+
+Features that will be removed according to its ChiSquare score:
+
+* job_duration_in_current_person_level
+* age
+* job_duration_from_training
+* Achievement_above_100._during3quartal
+
+```{r}
+features <- X_train_outremoved %>% colnames()
+removed_features <- c("job_duration_in_current_person_level", "age", "job_duration_from_training",
+                     "Achievement_above_100._during3quartal")
+
+features <- setdiff(features, removed_features)
+```
+
+```{r}
+X_train_fin <- X_train_outremoved[, features]
+```
+
+# Preprocess test data
+```{r}
+test_fin <- test[, features]
+```
+
+# Write data
+```{r}
+head(X_train_fin, 5)
+head(test_fin, 5)
+```
+
+```{r}
+saveRDS(cbind(X_train_fin, y_train_outremoved), "train_fin.rds")
+saveRDS(test_fin, "test_fin.rds")
+```
+

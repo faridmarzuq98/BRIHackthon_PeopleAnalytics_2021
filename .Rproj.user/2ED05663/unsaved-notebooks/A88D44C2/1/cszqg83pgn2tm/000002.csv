@@ -1,0 +1,36 @@
+"0","library(themis)"
+"2","Registered S3 method overwritten by 'data.table':
+  method           from
+  print.data.table     
+"
+"2","Registered S3 methods overwritten by 'themis':
+  method                  from   
+  bake.step_downsample    recipes
+  bake.step_upsample      recipes
+  prep.step_downsample    recipes
+  prep.step_upsample      recipes
+  tidy.step_downsample    recipes
+  tidy.step_upsample      recipes
+  tunable.step_downsample recipes
+  tunable.step_upsample   recipes
+"
+"2","
+Attaching package: ‘themis’
+
+"
+"2","The following objects are masked from ‘package:recipes’:
+
+    step_downsample, step_upsample
+
+"
+"2","Warning messages:
+"
+"2","1: "
+"2","In readChar(file, size, TRUE) :"
+"2"," truncating string with embedded nuls
+"
+"2","2: "
+"2","In readChar(file, size, TRUE) :"
+"2"," truncating string with embedded nuls
+"
+"0","library(tidymodels)"

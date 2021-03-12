@@ -1,0 +1,5 @@
+"0","features <- X_train_outremoved %>% colnames()"
+"0","removed_features <- c(""job_duration_in_current_person_level"", ""age"", ""job_duration_from_training"","
+"0","                     ""Achievement_above_100._during3quartal"")"
+"0",""
+"0","features <- setdiff(features, removed_features)"

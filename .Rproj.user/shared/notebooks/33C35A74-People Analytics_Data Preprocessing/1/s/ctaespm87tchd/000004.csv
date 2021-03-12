@@ -1,0 +1,8 @@
+"0","train_fillna <- train"
+"0",""
+"0","for(i in seq_along(num_features)){"
+"0","  feature <- num_features[i]"
+"0","  median <- median(train_fillna[, feature], na.rm = TRUE)"
+"0","  train_fillna[, feature] <- replace(train_fillna[, feature],"
+"0","                                     is.na(train_fillna[, feature]), median)"
+"0","}"

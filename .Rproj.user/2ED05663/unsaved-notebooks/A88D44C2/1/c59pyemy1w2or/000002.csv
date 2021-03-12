@@ -1,0 +1,5 @@
+"0","set.seed(123)"
+"0","split <- initial_split(train, prop = 7/10, strata = y_train_outremoved)"
+"0",""
+"0","train_train <- analysis(split)"
+"0","train_valid <- assessment(split)"

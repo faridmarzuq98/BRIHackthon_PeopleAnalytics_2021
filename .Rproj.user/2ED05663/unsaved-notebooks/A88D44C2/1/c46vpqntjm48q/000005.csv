@@ -1,0 +1,3 @@
+"0","train <- readRDS(""train_fin.rds"") %>%"
+"0","  mutate(y_train_outremoved = as.factor(y_train_outremoved))"
+"0","test <- readRDS(""test_fin.rds"")"

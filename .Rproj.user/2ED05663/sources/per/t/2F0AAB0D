@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1613118811532.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2806650389",
+    "id" : "2F0AAB0D",
+    "lastKnownWriteTime" : 1610617043,
+    "last_content_update" : 1613118814310,
+    "path" : "C:/Data/OneDrive - apps.ipb.ac.id/Work/Work/BNI/BNI ODP Data Scientist_Modeling.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "51,0",
+        "scrollLine" : "36"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
